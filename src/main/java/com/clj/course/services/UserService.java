@@ -3,6 +3,8 @@ package com.clj.course.services;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -44,11 +46,15 @@ public class UserService {
 	}
 	
 	public User update(Long id, User user) {
-		User entity = repository.getOne(id);
-		
-		updateData(entity, user);
-		
-		return repository.save(entity);
+		try {
+			User entity = repository.getOne(id);
+			
+			updateData(entity, user);
+			
+			return repository.save(entity);
+		} catch (EntityNotFoundException ex) {
+			throw new ResourceNotFoundException(id);
+		}
 	}
 
 	private void updateData(User entity, User user) {
